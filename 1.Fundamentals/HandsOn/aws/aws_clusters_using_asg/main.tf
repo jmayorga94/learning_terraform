@@ -10,7 +10,7 @@ provider "aws" {
 variable "server_port"{
   description = "The port the server will use for http request"
   type = number
-  default = 8080
+  default = 80
 
 }
 
@@ -135,11 +135,7 @@ resource "aws_launch_configuration" "cluster_config" {
   image_id  = "ami-02f3416038bdb17fb"
   instance_type = "t2.micro"
   security_groups = [ aws_security_group.instance.id ]
-  user_data = <<-EOF
-               #!/bin/bash
-               echo "hello, world" > index.html
-               nohup busybox httpd -f -p ${var.server_port} 
-               EOF
+  user_data = "${file("install_apache.sh")}"
 
   #Required when using a launch configuration with an autoscaling group
 

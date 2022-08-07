@@ -70,6 +70,13 @@ resource "aws_security_group" "instance" {
     to_port     = "22"
   }
 
+ ingress {
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = "80"
+    to_port     = "80"
+  }
+
   egress {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
@@ -94,11 +101,7 @@ resource "aws_instance" "example" {
   subnet_id = "${aws_subnet.subnet.id}"
   associate_public_ip_address = true
   vpc_security_group_ids = [ aws_security_group.instance.id ]
-  user_data = <<-EOF
-               # !/bin/bash
-               echo "hello, world" > index.html
-               nohup busybox httpd -f -p ${var.server_port} & 
-              EOF
+  user_data = "${file("install_apache.sh")}"
 
   tags={
     Name= "terraform.example"
